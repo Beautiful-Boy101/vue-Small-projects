@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+		<script src="js/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bootstrap.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/myStorage.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		<div id="app">
+			<div class="container" style=" width: 80%;">
+				<div class="container" style=" width: 70%;">
+					<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#exampleModal">添加数据</button>
+					<input type="text" class="form-control-lg" placeholder="查找" v-model="searchInput">
+				</div>
+				
+				
+				
+				<!-- Modal -->
+				<div class="modal fade" id="exampleModal"  >
+				  <div class="modal-dialog" role="document">
+				    <div class="modal-content">
+				      <div class="modal-body">
+							<!-- 用户输入框 -->
+							<div class="input-group flex-nowrap" style="margin:10px;">
+								<div class="input-group-prepend">
+									<span class="input-group-text" id="addon-wrapping" >用户</span>
+								</div>
+								<input type="text" class="form-control"  v-model="current.userName">
+							</div>
+							
+							<!-- 服装输入框 -->
+							<div class="input-group flex-nowrap" style="margin:10px;">
+								<div class="input-group-prepend">
+									<span class="input-group-text"  >服装名字</span>
+								</div>
+								<input type="text" class="form-control" v-model="current.clothesName" >
+							</div>
+							
+							<!-- 服装数量 -->
+							<div class="input-group flex-nowrap" style="margin:10px;">
+								<div class="input-group-prepend">
+									<span class="input-group-text"  >服装数量</span>
+								</div>
+								<input type="text" class="form-control" v-model="current.clothesNo" >
+							</div>
+							
+							<!-- 服装尺寸 -->
+							<div class="input-group flex-nowrap" style="margin:10px;">
+								<div class="input-group-prepend">
+									<span class="input-group-text"  >服装尺寸</span>
+								</div>
+								<input type="text" class="form-control" v-model="current.clothesSize" >
+							</div>
+							
+							<!-- 服装价格 -->
+							<div class="input-group flex-nowrap" style="margin:10px;">
+								<div class="input-group-prepend">
+									<span class="input-group-text"  >服装价格</span>
+								</div>
+								<input type="text" class="form-control" v-model="current.clothesPrice" >
+							</div>
+							
+							<!-- 服装颜色 -->
+							<div class="input-group flex-nowrap" style="margin:10px;">
+								<div class="input-group-prepend">
+									<span class="input-group-text"  >服装颜色</span>
+								</div>
+								<input type="text" class="form-control" v-model="current.clothesColor" >
+							</div>
+							
+							
+							
+				      </div>
+				      <div class="modal-footer">
+						  <button type="button" class="btn btn-secondary" @click="add">确认</button>
+				        <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="de">Close</button>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+				
+
+				<div class="container" style=" width: 70%;margin-top: 30px;">
+					<table border="" cellspacing="" cellpadding="20" >
+						<tr >
+							<th>序号</th>
+							<th>id</th>
+							<th>用户名</th>
+							<th>服装名</th>
+							<th>编辑</th>
+						</tr>
+						<tr v-for="(item,index) in filterList">
+							<td>{{index}}</td>
+							<td>{{item.id}}</td>
+							<td>{{item.userName}}</td>
+							<td>{{item.clothesName}}</td>
+							<td>
+								<button type="button" class="btn btn-danger" @click="remove(item.id)">删除</button>
+								<button type="button" class="btn btn-secondary" @click="set_current(item)" >更新</button>
+								<button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#datail">详情</button>
+								
+								<!-- datail -->
+								<div class="modal fade" id="datail"  >
+								  <div class="modal-dialog" role="document">
+								    <div class="modal-content">
+								      <div class="modal-body">
+											<table border="" cellspacing="" cellpadding="15" >
+												<tr >
+													<th>序号</th>
+													<th>id</th>
+													<th>用户名</th>
+													<th>服装名</th>
+													<th>服装数量</th>
+													<th>服装尺寸</th>
+													<th>服装价格</th>
+													<th>服装颜色</th>
+												</tr>
+												<tr v-for="(item,index) in list">
+													<td>{{index}}</td>
+													<td>{{item.id}}</td>
+													<td>{{item.userName}}</td>
+													<td>{{item.clothesName}}</td>
+													<td>{{item.clothesNo}}</td>
+													<td>{{item.clothesSize}}</td>
+													<td>{{item.clothesPrice}}</td>
+													<td>{{item.clothesColor}}</td>
+												</tr>
+											</table>
+								      </div>
+								    </div>
+								  </div>
+								</div>
+							
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				
+			</div>
+		</div>
+	</body>
+</html>
+
+<script type="text/javascript">
+	var app = new Vue({
+		el:"#app",
+		data:{
+			current:{},
+			list:[],
+			lastId:0,
+			searchInput:''
+		},
+		created(){
+			this.list = ms.get('list')
+			this.lastId = ms.get('lastId')
+		},
+		computed:{
+			filterList:function(){
+				var artices_list = this.list
+				searchInput = this.searchInput
+				if(!searchInput){
+					return artices_list
+				}
+				artices_list = this.list.filter(item=>{
+					if(item.userName.includes(searchInput)){
+						return item
+					}
+				})
+				return artices_list
+			}
+		},
+		methods:{
+			add:function(){
+				var is_updata;
+				is_updata = this.current.id
+				
+				if (is_updata) {
+					//is_updata不为0，更新
+					var index = this.list.findIndex(function(item){
+						return item.id == is_updata
+					})
+					Vue.set(this.list,index,Object.assign({},this.current))
+					
+				} else{
+					//is_updata为0，添加
+					var currentIndexs = Object.assign({},this.current)
+					currentIndexs.id = this.next_id()
+					this.list.push(currentIndexs)
+				}
+				this.set_current({})
+			},
+			remove:function(id){
+				var index = this.list.findIndex(function(item){
+					return item.id == id
+				})
+				this.list.splice(index,1)
+			},
+			set_current:function(item){
+				$('#exampleModal').modal('toggle')
+				this.current = Object.assign({},item)
+			},
+			next_id:function(){
+				this.lastId++
+				ms.set('lastId',this.lastId)
+				return this.lastId
+			},
+			de:function(){
+				this.set_current({})
+			},
+		},
+		watch:{
+			list:{
+				deep:true,
+				handler:function(new_val,old_val){
+					if (new_val) {
+						ms.set('list',new_val)
+					} else{
+						ms.set('list',[])
+					}
+				}
+			}
+		}
+	})
+</script>
